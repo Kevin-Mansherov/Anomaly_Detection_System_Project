@@ -1,3 +1,12 @@
+"""
+PURPOSE:
+Performs Exploratory Data Analysis (EDA) on the CIC-IDS-2017 network traffic dataset[cite: 207].
+It provides visualizations for:
+1. Label distribution (Benign vs. Attack types) to ensure the training set contains "normal" data[cite: 246].
+2. Data quality checks for missing values or zero-variance columns[cite: 250].
+3. Correlation heatmaps to understand relationships between different network features[cite: 155].
+"""
+
 import pandas as pd
 import numpy as np
 import seaborn as sns

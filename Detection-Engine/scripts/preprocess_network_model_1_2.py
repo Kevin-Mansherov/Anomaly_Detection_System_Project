@@ -1,3 +1,12 @@
+"""
+PURPOSE:
+Handles the data cleaning and normalization for Models 1 and 2 (Suspicious Activity and Intrusion Detection)[cite: 154, 157].
+It processes the CIC-IDS-2017 dataset by:
+1. Stripping redundant or constant-value features[cite: 252].
+2. Handling infinite values and missing data[cite: 251].
+3. Scaling all numerical features to a [0, 1] range using MinMaxScaler to ensure stable RBM training[cite: 255, 293].
+"""
+
 import pandas as pd
 import numpy as np
 import os

@@ -1,3 +1,12 @@
+"""
+PURPOSE:
+Conducts Exploratory Data Analysis (EDA) on the CERT Insider Threat dataset for policy monitoring[cite: 225].
+This utility focuses on:
+1. Visualizing the distribution of activities (Logon, Connect, etc.)[cite: 227].
+2. Identifying the most active users and analyzing the time range of the data[cite: 225].
+3. Helping determine the baseline for "normal" user behavior profiles[cite: 108, 163].
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
