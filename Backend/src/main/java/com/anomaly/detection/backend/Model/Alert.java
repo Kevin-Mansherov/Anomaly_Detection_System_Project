@@ -22,4 +22,5 @@ public class Alert {
     private double anomalyScore;
     private String status;
     private String description;
+    private String severity;
 }
