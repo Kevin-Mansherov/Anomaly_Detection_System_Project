@@ -32,7 +32,7 @@ class RBM(nn.Module):
         return prob_v, torch.bernoulli(prob_v)
     
     def free_energy(self, v):
-        """Calculate the free energy: F(v) = -a^T v - \ sum(log(1 + exp(W v + b)))"""
+        r"""Calculate the free energy: F(v) = -a^T v - \ sum(log(1 + exp(W v + b)))"""
         v_bias_term = v.mv(self.v_bias)
         wx_b = F.linear(v, self.W, self.h_bias)
         hidden_term = wx_b.exp().add(1).log().sum(1)
