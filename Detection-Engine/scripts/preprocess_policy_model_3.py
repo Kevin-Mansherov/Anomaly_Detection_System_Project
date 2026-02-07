@@ -28,14 +28,14 @@ def preprocess_unified_cert():
             
         df = pd.read_csv(file_path)
 
-        if filename == 'http.csv':
-            df['activity_type'] = 1 # HTTP Activity
-        elif filename == 'logon.csv':
-            df['activity_type'] = df['activity'].map({'Logon': 2, 'Logoff': 3}).fillna(0)
-        elif filename == 'device.csv':
-            df['activity_type'] = df['activity'].map({'Connect': 4, 'Disconnect': 5}).fillna(0)
+        if filename == 'http.csv': 
+            df['act_name'] = 'http'
+        elif filename == 'logon.csv': 
+            df['act_name'] = df['activity']
+        elif filename == 'device.csv': 
+            df['act_name'] = df['activity']
 
-        all_events.append(df[['date', 'activity_type']])
+        all_events.append(df[['date', 'act_name']])
 
     # 1. Combine events
     combined_df = pd.concat(all_events, ignore_index=True)
@@ -45,28 +45,28 @@ def preprocess_unified_cert():
     combined_df['hour'] = combined_df['date'].dt.hour
     combined_df['hour_sin'] = np.sin(2*np.pi*combined_df['hour']/24)
     combined_df['hour_cos'] = np.cos(2*np.pi*combined_df['hour']/24)
-    combined_df['is_weekend'] = (combined_df['date'].dt.dayofweek >= 5).astype(int)
-    
+
+    combined_df = pd.get_dummies(combined_df, columns=['act_name'], )    
 
     
-    features = combined_df[['hour_sin', 'hour_cos', 'is_weekend', 'activity_type']]
-    
-    features = features.dropna()
-    
+    feature_cols = ['hour_sin', 'hour_cos'] + [col for col in combined_df.columns if 'act_name_' in col]
+    features = combined_df[feature_cols].astype(float)
+
+
+    if len(features) > 500000:
+        features = features.sample(n=500000, random_state=42)
+
 
     scaler = MinMaxScaler()
     scaled_features = scaler.fit_transform(features)
-
-    variances = np.var(scaled_features, axis=0)
-    print(f"Feature variances after scaling: {variances}")
     
     # Saving
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     np.save(os.path.join(OUTPUT_DIR, 'policy_train.npy'), scaled_features)
     joblib.dump(scaler, os.path.join(ARTIFACTS_DIR, 'policy_scaler.pkl'))
     
-    print("\n--- Preprocessing Success with Cyclic Time ---")
-    print(f"Matrix shape: {scaled_features.shape}")
+    print(f"--- Success! Matrix shape: {scaled_features.shape} ---")
+    print(f"Features: {feature_cols}")
 
 if __name__ == "__main__":
     preprocess_unified_cert()
