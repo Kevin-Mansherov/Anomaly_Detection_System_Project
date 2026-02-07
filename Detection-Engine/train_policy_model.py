@@ -1,84 +1,97 @@
 """
 PURPOSE:
-Implements the training pipeline for the Policy Enforcement RBM[cite: 160].
+Implements the training pipeline for the Policy Enforcement RBM.
 This script:
-1. Loads preprocessed user behavior vectors[cite: 301].
-2. Trains the RBM using the Adam optimizer and Mean Squared Error (MSE) loss[cite: 304, 312].
-3. Includes a Validation Split to monitor performance on unseen data and prevent overfitting[cite: 298].
-4. Saves the best model version based on the lowest reconstruction error found during training[cite: 313, 317].
+1. Loads preprocessed user behavior vectors.
+2. Trains the RBM using Energy-Based objective (Contrastive Divergence).
+3. Employs early stopping based on validation energy gap to prevent overfitting, and saves the best model.
 """
 
 from models.model import RBM
+from utils.early_stopping import EarlyStopping
 
 import torch 
 import torch.nn as nn
-import torch.utils.data
+from torch.utils.data  import DataLoader, random_split
+import torch.nn.functional as F
 import numpy as np
-import time
+import os
 
-def train():
+def train_rbm():
     # Hyperparameters settings
-    BATCH_SIZE = 1024
-    VISIBLE_UNITS = 6
-    HIDDEN_UNITS = 24 # Slightly increased to capture more complex user patterns
-    EPOCHS = 20
-    LEARNING_RATE = 0.001
-    VAL_SPLIT = 0.2 # Reserve 20% of data for validation (unseen data)
+    BATCH_SIZE = 512
+    # HIDDEN_UNITS = 64 
+    HIDDEN_UNITS = 256
+    # EPOCHS = 50
+    EPOCHS = 200
+    # LEARNING_RATE = 0.01
+    LEARNING_RATE = 0.0002
+    # CD_K = 1 # Contrastive Divergence steps
+    CD_K = 10
+    VAL_SPLIT = 0.2 # 20% for validation
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    print(f"--- Training Model 3 (Policy) on {device} ---")
 
-    # Load and split the processed data
-    data_np = np.load('data/processed/policy/policy_train.npy')
-    data_tensor = torch.from_numpy(data_np.astype(np.float32))
+    data_path = 'Datasets/processed/policy/policy_train.npy'
+    if not os.path.exists(data_path):
+        print(f"Error: {data_path} not found. Run preprocessing first.")
+        return
     
-    train_size = int((1 - VAL_SPLIT) * len(data_tensor))
-    train_data, val_data = torch.utils.data.random_split(data_tensor, [train_size, len(data_tensor) - train_size])
+    # Load data
+    data = np.load(data_path)
+    data_tensor = torch.from_numpy(data.astype(np.float32)).to(device)
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=BATCH_SIZE, shuffle=False)
-
-    rbm = RBM(VISIBLE_UNITS, HIDDEN_UNITS).to(device)
-    optimizer = torch.optim.Adam(rbm.parameters(), lr=LEARNING_RATE)
-    criterion = nn.MSELoss() # Reconstruction error measure as per proposal [cite: 312]
-
-    best_val_loss = float('inf')
+    # Validation Split
+    train_size = int((1-VAL_SPLIT) * len(data_tensor))
     
-    print(f"Starting training for {EPOCHS} epochs...")
+    val_size = len(data_tensor) - train_size
+    train_subset, val_subset = random_split(data_tensor, [train_size, val_size])
+
+    train_loader = DataLoader(train_subset, batch_size=BATCH_SIZE, shuffle=True)
+    val_loader = DataLoader(val_subset, batch_size=BATCH_SIZE, shuffle=False)
+
+    # Model and Optimizer Initialization
+    visible_units = data.shape[1]
+    rbm = RBM(visible_units, HIDDEN_UNITS, k=CD_K).to(device)
+    optimizer = torch.optim.SGD(rbm.parameters(), lr=LEARNING_RATE)
+
+    # Initialize Early Stopping
+    os.makedirs('models/artifacts', exist_ok=True)
+    # stopper = EarlyStopping(patience=5, path='models/artifacts/best_policy_rbm.pth')
+    stopper = EarlyStopping(patience=15, path='models/artifacts/best_policy_rbm.pth')
+
+
     for epoch in range(EPOCHS):
         rbm.train()
-        train_loss = 0
+        train_mse = 0
         for batch in train_loader:
-            batch = batch.to(device)
+            v_pos, v_neg = rbm(batch)
             
-            # Contrastive Divergence approximation via forward pass
-            v_reconstructed, _ = rbm(batch)
-            loss = criterion(v_reconstructed, batch)
+            loss = rbm.free_energy(v_pos) - rbm.free_energy(v_neg)
             
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            train_loss += loss.item()
+            
+            train_mse += F.mse_loss(v_pos, v_neg).item()
 
-        # Validation phase: monitor performance on unseen data
         rbm.eval()
-        val_loss = 0
+        val_mse = 0
         with torch.no_grad():
             for batch in val_loader:
-                batch = batch.to(device)
-                v_rec, _ = rbm(batch)
-                val_loss += criterion(v_rec, batch).item()
-        
-        avg_train = train_loss / len(train_loader)
-        avg_val = val_loss / len(val_loader)
-        
-        print(f"Epoch {epoch+1}: Train Loss: {avg_train:.6f} | Val Loss: {avg_val:.6f}")
+                v_pos, v_neg = rbm(batch)
+                val_mse += F.mse_loss(v_pos, v_neg).item()
 
-        # Early Stopping: save only the best performing model
-        if avg_val < best_val_loss:
-            best_val_loss = avg_val
-            torch.save(rbm.state_dict(), 'models/artifacts/best_policy_model.pth')
-            print("--> Best model saved.")
+        avg_train_mse = train_mse / len(train_loader)
+        avg_val_mse = val_mse / len(val_loader)
+
+        print(f"Epoch [{epoch+1}/{EPOCHS}] | Train MSE: {avg_train_mse:.6f} | Val MSE: {avg_val_mse:.6f}")
+
+        stopper(avg_val_mse, rbm)
+        if stopper.early_stop:
+            print(f"--> Stopping at epoch {epoch+1}. Model 3 is optimized.")
+            break
 
 if __name__ == "__main__":
-    train()
+    train_rbm()

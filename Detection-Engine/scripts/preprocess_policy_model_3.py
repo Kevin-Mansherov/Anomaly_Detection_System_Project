@@ -27,8 +27,15 @@ def preprocess_unified_cert():
             continue
             
         df = pd.read_csv(file_path)
-        df['event_source'] = filename.split('.')[0]
-        all_events.append(df[['date', 'user', 'pc', 'activity', 'event_source']])
+
+        if filename == 'http.csv': 
+            df['act_name'] = 'http'
+        elif filename == 'logon.csv': 
+            df['act_name'] = df['activity']
+        elif filename == 'device.csv': 
+            df['act_name'] = df['activity']
+
+        all_events.append(df[['date', 'act_name']])
 
     # 1. Combine events
     combined_df = pd.concat(all_events, ignore_index=True)
@@ -36,37 +43,30 @@ def preprocess_unified_cert():
     # 2. Time Handling & Cyclic Encoding
     combined_df['date'] = pd.to_datetime(combined_df['date'])
     combined_df['hour'] = combined_df['date'].dt.hour
-    
-    # Create sine and cosine features for the 24-hour cycle
-    combined_df['hour_sin'] = np.sin(2 * np.pi * combined_df['hour'] / 24)
-    combined_df['hour_cos'] = np.cos(2 * np.pi * combined_df['hour'] / 24)
-    
-    combined_df['day_of_week'] = combined_df['date'].dt.dayofweek
-    
-    # 3. Categorical Encoding
-    le_user = LabelEncoder()
-    combined_df['user_id'] = le_user.fit_transform(combined_df['user'])
-    le_pc = LabelEncoder()
-    combined_df['pc_id'] = le_pc.fit_transform(combined_df['pc'])
-    le_act = LabelEncoder()
-    combined_df['activity_id'] = le_act.fit_transform(combined_df['activity'].astype(str))
-    le_src = LabelEncoder()
-    combined_df['source_id'] = le_src.fit_transform(combined_df['event_source'])
+    combined_df['hour_sin'] = np.sin(2*np.pi*combined_df['hour']/24)
+    combined_df['hour_cos'] = np.cos(2*np.pi*combined_df['hour']/24)
 
-    # 4. Final Feature Vector (Including Cyclic Time)
-    features = combined_df[['hour_sin', 'hour_cos', 'day_of_week', 'user_id', 'pc_id', 'activity_id', 'source_id']]
+    combined_df = pd.get_dummies(combined_df, columns=['act_name'], )    
+
     
-    # 5. Normalization
+    feature_cols = ['hour_sin', 'hour_cos'] + [col for col in combined_df.columns if 'act_name_' in col]
+    features = combined_df[feature_cols].astype(float)
+
+
+    if len(features) > 500000:
+        features = features.sample(n=500000, random_state=42)
+
+
     scaler = MinMaxScaler()
     scaled_features = scaler.fit_transform(features)
     
-    # 6. Saving
+    # Saving
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     np.save(os.path.join(OUTPUT_DIR, 'policy_train.npy'), scaled_features)
     joblib.dump(scaler, os.path.join(ARTIFACTS_DIR, 'policy_scaler.pkl'))
     
-    print("\n--- Preprocessing Success with Cyclic Time ---")
-    print(f"Matrix shape: {scaled_features.shape}")
+    print(f"--- Success! Matrix shape: {scaled_features.shape} ---")
+    print(f"Features: {feature_cols}")
 
 if __name__ == "__main__":
     preprocess_unified_cert()
