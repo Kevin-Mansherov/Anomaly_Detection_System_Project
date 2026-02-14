@@ -1,7 +1,7 @@
 package com.anomaly.detection.backend.Model;
 
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

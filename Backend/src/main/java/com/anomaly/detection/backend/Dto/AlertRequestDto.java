@@ -10,18 +10,23 @@ import lombok.NoArgsConstructor;
 @Data
 public class AlertRequestDto {
 
+    @NotBlank
+    private String modelName;
+
+    @NotBlank
+    private String severity;
+
+    @NotNull
+    private Double mseScore;
+
+    @NotNull
+    private Double threshold;
+
     @NotBlank(message = "Source IP is required")
     private String sourceIp;
 
     @NotBlank(message = "Destination IP is required")
     private String destinationIp;
-
-    @NotBlank(message = "Model name is required")
-    private String detectedBy;
-
-    @NotNull(message = "Anomaly Score cannot be null")
-    @Min(value = 0, message = "Anomaly Score must be non-negative")
-    private double anomalyScore;
 
     private String description;
 }

@@ -1,6 +1,6 @@
 package com.anomaly.detection.backend.Model;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,16 +11,17 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collation = "alerts")
+@Document(collection = "alerts")
 public class Alert {
     @Id
     private String id;
     private LocalDateTime timestamp;
-    private String sourceIp;
-    private String destinationIp;
-    private String detectedBy;
-    private double anomalyScore;
+    private String sourceIp; //From scapy
+    private String destinationIp; //From scapy
+    private String detectedBy; //Model name or detection method
+    private double anomalyScore; //Maps to MSE Score
+    private double threshold; //Safety limit
     private String status;
     private String description;
-    private String severity;
+    private String severity; //"CRITICAL" or "WARNING"
 }
