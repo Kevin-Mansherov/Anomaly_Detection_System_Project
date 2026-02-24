@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MetricRepository extends MongoRepository<Metric, String> {
-    List<Metric> findTop10ByOrderByTimestampDesc();
+public interface MetricRepository extends MongoRepository<Metric, Long> {
+    List<Metric> findByModelName(String modelName);
 }
