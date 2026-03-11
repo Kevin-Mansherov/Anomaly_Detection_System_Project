@@ -54,7 +54,7 @@ def create_policy_test_set_with_labels():
     labels = combined_df['is_anomaly'].values
 
     # 4. One-Hot Encoding
-    combined_df = pd.get_dummies(combined_df, columns=['act_name'])
+    combined_df = pd.get_dummies(combined_df, columns=['hour', 'act_name'])
     
     # --- התיקון הקריטי כאן: יישור עמודות ---
     # אנחנו מכריחים את ה-DataFrame להכיל רק את העמודות שהסקיילר מכיר

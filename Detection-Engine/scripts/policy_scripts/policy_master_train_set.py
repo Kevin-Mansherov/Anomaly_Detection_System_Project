@@ -43,7 +43,7 @@ def build_policy_master_set():
 
     combined_df['hour'] = combined_df['date'].dt.hour
 
-    combined_df = pd.get_dummies(combined_df, columns=['act_name'])
+    combined_df = pd.get_dummies(combined_df, columns=['hour', 'act_name'])
 
     for h in range(5,24):
         col = f'hour_{h}'
@@ -53,7 +53,7 @@ def build_policy_master_set():
 
     hours_cols = sorted([col for col in combined_df.columns if 'hour_' in col])
     action_cols = sorted([col for col in combined_df.columns if 'act_name_' in col])
-    feature_cols = action_cols + hours_cols
+    feature_cols = hours_cols + action_cols
 
     features = combined_df[feature_cols].astype(float)
 
@@ -71,6 +71,7 @@ def build_policy_master_set():
     print(f"\n[SUCCESS] Master Policy Set Created!")
     print(f"Matrix shape: {scaled_features.shape}")
     print(f"Features used: {feature_cols}")
+    print(f"Unique patterns check: {len(np.unique(scaled_features, axis=0))}")
 
 if __name__ == "__main__":
     build_policy_master_set()
