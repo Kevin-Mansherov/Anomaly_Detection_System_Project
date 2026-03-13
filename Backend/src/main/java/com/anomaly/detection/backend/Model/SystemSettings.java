@@ -9,12 +9,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "system_settings")
 public class SystemSettings {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String configKey;
-    private String configValue;
-    private String description;
-
+    private double globalThreshold;
+    private int logRetentionDays;
+    private boolean isDetectionEnabled;
+    private String systemVersion;
 }

@@ -412,3 +412,5 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+
+*.ini
