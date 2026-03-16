@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SystemSettingsRepository extends MongoRepository<SystemSettings,Long> {
-    Optional<SystemSettings> findByConfigKey(String configKey);
+public interface SystemSettingsRepository extends MongoRepository<SystemSettings,String> {
+
 }

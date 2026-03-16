@@ -9,5 +9,6 @@ import java.util.List;
 @Repository
 public interface AlertRepository extends MongoRepository<Alert,String> {
     List<Alert> findByStatus(String status);
+    List<Alert> findBySeverity(String severity);
     List<Alert> findByDetectedBy(String detectedBy);
 }

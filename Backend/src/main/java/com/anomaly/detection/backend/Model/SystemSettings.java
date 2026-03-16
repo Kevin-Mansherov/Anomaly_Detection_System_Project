@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "system_settings")
 public class SystemSettings {
     @Id
-    private Long id;
+    private String id;
 
     private double globalThreshold;
     private int logRetentionDays;
