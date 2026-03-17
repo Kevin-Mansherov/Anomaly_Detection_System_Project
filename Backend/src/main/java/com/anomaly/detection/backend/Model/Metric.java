@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Document(collection = "metrics")
 public class Metric {
     @Id
-    private Long id;
+    private String id;
     private LocalDateTime timestamp;
     private String modelName;
     private double mseValue;
