@@ -1,5 +1,7 @@
 package com.anomaly.detection.backend.Controller;
 
+import com.anomaly.detection.backend.Dto.AuthResponseDto;
+import com.anomaly.detection.backend.Dto.UserRequestDto;
 import com.anomaly.detection.backend.Dto.UserResponseDto;
 import com.anomaly.detection.backend.Model.User;
 import com.anomaly.detection.backend.Service.UserService;
@@ -21,9 +23,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> register(@RequestBody User user){
-        log.info("REST request to register user: {}", user.getUsername());
-        UserResponseDto response = userService.registerUser(user);
+    public ResponseEntity<AuthResponseDto> register(@RequestBody UserRequestDto userDto){
+        log.info("REST request to register user: {}", userDto.getUsername());
+        AuthResponseDto response = userService.registerUser(userDto);
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -43,9 +45,9 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDto> updateUser(@PathVariable String id, @RequestBody User userDetails){
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable String id, @RequestBody UserRequestDto userDto){
         log.info("REST request to update user: {}", id);
-        UserResponseDto updatedUser = userService.updateUser(id, userDetails);
+        UserResponseDto updatedUser = userService.updateUser(id, userDto);
         return ResponseEntity.ok(updatedUser);
     }
 
