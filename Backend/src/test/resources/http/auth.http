@@ -1,0 +1,25 @@
+### Register a new user
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}",
+  "role": "ROLE_ADMIN"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+### Login with existing user
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+    client.global.set("auth_token", response.body.token);
+    client.log("Token saved: " + client.global.get("auth_token"));
+ %}

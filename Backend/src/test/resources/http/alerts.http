@@ -1,0 +1,34 @@
+### [Unprotected] Login with existing credentials
+# This is the entry point to get a fresh JWT token
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}"
+}
+
+> {%
+    client.global.set("auth_token", response.body.token);
+    client.log("Login successful. Token saved to global variable.");
+%}
+
+### [Protected] Create and process a new security alert
+# Triggered by the ML model when an anomaly is detected. Requires JWT.
+POST {{host}}/api/alerts
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "sourceIp": "192.168.1.50",
+  "destinationIp": "10.0.0.1",
+  "detectedBy": "IsolationForest_Model_V1",
+  "anomalyScore": 8.5,
+  "description": "High volume of outbound traffic detected"
+}
+
+
+### [Protected] Retrieve all generated alerts
+# Used by the Dashboard to display security events. Requires JWT.
+GET {{host}}/api/alerts
+Authorization: Bearer {{auth_token}}
