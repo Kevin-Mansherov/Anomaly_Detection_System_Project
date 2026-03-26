@@ -21,15 +21,10 @@ def load_trained_model(input_dim, hidden_dim, device):
     return model
 
 def find_optimal_threshold(y_true, mse_scores):
-    """
-    מוצא את הסף האידיאלי שמקסים את מדד ה-F1
-    """
     precisions, recalls, thresholds = precision_recall_curve(y_true, mse_scores)
     
-    # חישוב F1 לכל נקודה בעקומה (מוסיפים ערך קטן למכנה למניעת חלוקה באפס)
     f1_scores = 2 * (precisions * recalls) / (precisions + recalls + 1e-10)
     
-    # מציאת האינדקס של ה-F1 הגבוה ביותר
     best_idx = np.argmax(f1_scores)
     best_threshold = thresholds[best_idx]
     
