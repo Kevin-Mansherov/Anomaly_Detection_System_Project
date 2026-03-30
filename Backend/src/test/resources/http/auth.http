@@ -23,3 +23,14 @@ Content-Type: application/json
     client.global.set("auth_token", response.body.token);
     client.log("Token saved: " + client.global.get("auth_token"));
  %}
+
+### ---------------- NEGATIVE TESTS ---------------- ###
+
+### [Negative] Login with wrong password (Expected: 401 Unauthorized)
+POST {{host}}/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "WrongPassword123!"
+}

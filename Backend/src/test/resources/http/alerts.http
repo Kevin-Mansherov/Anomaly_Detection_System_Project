@@ -22,7 +22,7 @@ Authorization: Bearer {{auth_token}}
 {
   "sourceIp": "192.168.1.50",
   "destinationIp": "10.0.0.1",
-  "detectedBy": "IsolationForest_Model_V1",
+  "detectedBy": "Packet_Model_V1",
   "anomalyScore": 8.5,
   "description": "High volume of outbound traffic detected"
 }
@@ -32,3 +32,30 @@ Authorization: Bearer {{auth_token}}
 # Used by the Dashboard to display security events. Requires JWT.
 GET {{host}}/api/alerts
 Authorization: Bearer {{auth_token}}
+
+### [Protected] Update Alert Status (Simulating Analyst resolving an issue)
+# Replace 'REPLACE_WITH_ALERT_ID' with a real ID you got from the GET request
+PATCH {{host}}/api/alerts/69ca793cf431a93928297b2b/status
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "status": "RESOLVED"
+}
+
+### ---------------- NEGATIVE TESTS ---------------- ###
+
+### [Negative] Try to create an alert with missing IP (Expected: 400 Bad Request)
+POST {{host}}/api/alerts
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "destinationIp": "10.0.0.1",
+  "detectedBy": "Packet_RBM",
+  "anomalyScore": 8.5
+}
+###sourceIp is missing!
+
+### [Negative] Get alerts without token (Expected: 401 Unauthorized)
+GET {{host}}/api/alerts

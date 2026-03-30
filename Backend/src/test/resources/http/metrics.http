@@ -1,0 +1,39 @@
+### [Protected] Create a new metric (Simulating Python Engine)
+POST {{host}}/api/metric/report
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "modelName": "Packet_RBM",
+  "mseValue": 0.045,
+  "thresholdLimit": 0.080,
+  "isAnomaly": false
+}
+
+### [Protected] Get all metrics (Simulating React Dashboard)
+GET {{host}}/api/metric
+Authorization: Bearer {{auth_token}}
+
+### ---------------- NEGATIVE TESTS ---------------- ###
+
+### [Negative] Try to create metric without Auth Token (Expected: 401 Unauthorized)
+POST {{host}}/api/metrics
+Content-Type: application/json
+
+{
+  "modelName": "Packet_RBM",
+  "mseValue": 0.045,
+  "thresholdLimit": 0.080,
+  "isAnomaly": false
+}
+
+### [Negative] Try to create metric with missing mandatory fields (Expected: 400 Bad Request)
+POST {{host}}/api/metrics
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "modelName": "Packet_RBM"
+
+}
+###mseValue is missing!

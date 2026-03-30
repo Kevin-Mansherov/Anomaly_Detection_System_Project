@@ -77,6 +77,11 @@ public class UserServiceImpl implements  UserService {
         user.setRole(userDto.getRole());
         user.setUpdatedAt(LocalDateTime.now());
 
+        if(userDto.getPassword() != null && !userDto.getPassword().trim().isEmpty()){
+            String encryptedPassword = passwordEncoder.encode(userDto.getPassword());
+            user.setPassword(encryptedPassword);
+        }
+
         User updatedUser = userRepository.save(user);
         log.info("User details updated for: {}", user.getUsername());
 

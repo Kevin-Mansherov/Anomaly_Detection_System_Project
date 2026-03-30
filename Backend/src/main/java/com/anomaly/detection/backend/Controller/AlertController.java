@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/alerts")
@@ -39,7 +40,13 @@ public class AlertController
     }
 
     @PatchMapping("/{id}/status")
-    public ResponseEntity<Void> updateStatus(@PathVariable String id, @RequestParam String status){
+    public ResponseEntity<Void> updateStatus(@PathVariable String id, @RequestBody Map<String,String> requestBody){
+        String status = requestBody.get("status");
+
+        if(status == null || status.trim().isEmpty()){
+            return ResponseEntity.badRequest().build();
+        }
+
         alertService.updateAlertStatus(id, status);
         return ResponseEntity.noContent().build();
     }
