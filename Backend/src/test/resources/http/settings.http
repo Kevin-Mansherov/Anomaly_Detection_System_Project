@@ -1,0 +1,30 @@
+### [Protected] Get current system settings
+GET {{host}}/api/settings
+Authorization: Bearer {{auth_token}}
+
+### [Protected] Update system settings (Simulating Admin changing threshold)
+PUT {{host}}/api/settings
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "globalThreshold": 0.095,
+  "detectionEnabled": true,
+  "logRetentionDays": 30
+}
+
+### ---------------- NEGATIVE TESTS ---------------- ###
+
+### [Negative] Update settings with invalid data (Expected: 400 Bad Request)
+PUT {{host}}/api/settings
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "globalThreshold": -5.0,
+  "detectionEnabled": true,
+  "logRetentionDays": -10
+}
+
+### [Negative] Get settings without token (Expected: 401 Unauthorized)
+GET {{host}}/api/settings

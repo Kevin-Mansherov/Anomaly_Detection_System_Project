@@ -1,0 +1,59 @@
+### [Unprotected] Register a new user
+# Allowed for everyone to enable initial account creation
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "{{password}}",
+  "role": "ROLE_ADMIN"
+}
+
+> {% client.global.set("auth_token", response.body.token); %}
+
+
+### [Protected] Get all registered users
+# Requires a valid Bearer Token. Usually restricted to ADMIN role
+GET {{host}}/api/users
+Authorization: Bearer {{auth_token}}
+
+
+### [Protected] Get specific user by ID
+# Requires a valid Bearer Token
+GET {{host}}/api/users/69ca76e2f431a93928297b29
+Authorization: Bearer {{auth_token}}
+
+
+### [Protected] Update user details
+# Requires a valid Bearer Token. Updates username, password, or role
+PUT {{host}}/api/users/69be5c2e177304d6712b7573
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "username": "kevin_updated",
+  "password": "newpassword123",
+  "role": "ROLE_ADMIN"
+}
+
+
+### [Protected] Delete a user
+# Requires a valid Bearer Token. Critical operation
+DELETE {{host}}/api/users/69be5c2e177304d6712b7573
+Authorization: Bearer {{auth_token}}
+
+### ---------------- NEGATIVE TESTS ---------------- ###
+
+### [Negative] Get a user that doesn't exist (Expected: 404 Not Found)
+GET {{host}}/api/users/invalid_id_12345
+Authorization: Bearer {{auth_token}}
+
+### [Negative] Register a user with an existing username (Expected: 400 or 409 Conflict)
+POST {{host}}/api/users/register
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "password": "newpassword",
+  "role": "ROLE_USER"
+}
