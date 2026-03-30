@@ -33,10 +33,15 @@ class RBM(nn.Module):
     
     def free_energy(self, v):
         r"""Calculate the free energy: F(v) = -a^T v - \ sum(log(1 + exp(W v + b)))"""
+        # v_bias_term = v.mv(self.v_bias)
+        # wx_b = F.linear(v, self.W, self.h_bias)
+        # hidden_term = wx_b.exp().add(1).log().sum(1)
+        # return (- hidden_term - v_bias_term).mean()
+
         v_bias_term = v.mv(self.v_bias)
-        wx_b = F.linear(v, self.W, self.h_bias)
-        hidden_term = wx_b.exp().add(1).log().sum(1)
-        return (- hidden_term - v_bias_term).mean()
+        # שימוש ב-softplus מונע מחישובים להפוך ל-Infinity
+        hidden_term = torch.sum(torch.nn.functional.softplus(v @ self.W.t() + self.h_bias), dim=1)
+        return -hidden_term - v_bias_term
 
     def forward(self, v):
         """Perform Gibbs Sampling for energy based model training"""
