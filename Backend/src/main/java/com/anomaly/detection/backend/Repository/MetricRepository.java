@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MetricRepository extends MongoRepository<Metric, Long> {
+public interface MetricRepository extends MongoRepository<Metric, String> {
     List<Metric> findByModelName(String modelName);
 }
