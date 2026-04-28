@@ -3,6 +3,7 @@ import sys
 import glob
 import torch
 import joblib
+import requests
 import pandas as pd 
 import numpy as np
 from scapy.all import sniff, IP, TCP
@@ -25,6 +26,8 @@ PACKET_THRESHOLD = 3.369822
 FLOW_VISIBLE_UNITS = 10
 FLOW_HIDDEN_UNITS = 256
 FLOW_THRESHOLD = 14.386914
+
+SIEM_ALERT_URL = "http://localhost:8080/api/logs/alert"
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -184,6 +187,28 @@ def extract_features(packet):
             
         if total_packets_in_flow >= 3:
             print(f"[{status}] Packet MSE: {mse_packet:.4f} | Flow MSE: {mse_flow:.4f} | PktLen: {packet_len} | FlowPkts: {total_packets_in_flow}")
+
+        if status != "NORMAL":
+            max_mse = max(mse_packet, mse_flow)
+
+            alert_payload = {
+                "sourceIp": str(src_ip),
+                "destinationIp": str(dst_ip),
+                "detectedBy": f"NIDS Engine ({status})",
+                "anomalyScore": float(max_mse),
+                "description": f"Network anomaly detected. Packet MSE: {mse_packet:.4f}, Flow MSE: {mse_flow:.4f}"
+            }
+
+            try:
+                response = requests.post(SIEM_ALERT_URL, json=alert_payload, timeout=1)
+
+                if response.status_code == 200:
+                    print("    -> [SIEM] Alert successfully delivered to Central Server!")
+                else:
+                    print(f"    -> [WARNING] SIEM received the alert but returned status: {response.status_code}")
+                        
+            except requests.exceptions.RequestException as e:
+                print(f"    -> [ERROR] Failed to send alert to SIEM! Is Spring Boot running? Error: {e}")
 
 
 # Execution
