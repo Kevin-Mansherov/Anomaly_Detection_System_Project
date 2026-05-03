@@ -20,7 +20,6 @@ public class AlertRequestDto {
     private String detectedBy;
 
     @NotNull(message = "Anomaly Score cannot be null")
-    @Min(value = 0, message = "Anomaly Score must be non-negative")
     private double anomalyScore;
 
     private String description;
