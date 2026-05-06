@@ -1,7 +1,7 @@
 import api from "./api";
 
 export const authService = {
-  login: async (unregisterZIndexPortalElement, password) => {
+  login: async (username, password) => {
     try {
       const response = await api.post("/auth/login", { username, password });
 
@@ -31,7 +31,7 @@ export const authService = {
     }
   },
 
-  isAithenticated: () => {
+  isAuthenticated: () => {
     return !!localStorage.getItem("auth_token");
   },
 };
