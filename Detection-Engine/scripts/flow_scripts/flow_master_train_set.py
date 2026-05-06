@@ -43,7 +43,7 @@ def build_master_train_set():
         
         benign_dataframes.append(features_df)
     
-    # איחוד כל הימים לדאטה-פריים אחד ענק
+    # איחוד כל הימים לדאטה-פריים אחד 
     print("\n[INFO] Combining all days into one massive dataset...")
     master_df = pd.concat(benign_dataframes, ignore_index=True)
     

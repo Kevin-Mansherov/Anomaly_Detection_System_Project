@@ -3,9 +3,9 @@ import numpy as np
 import os
 import joblib
 
-DATASET_DIR = '../Datasets/Model_1_and_2/MachineLearningCSV/MachineLearningCVE'
-OUTPUT_DIR = '../data/processed/network'
-MODEL_DIR = '../models/artifacts'
+DATASET_DIR = '../../Datasets/Model_1_and_2/MachineLearningCSV/MachineLearningCVE'
+OUTPUT_DIR = '../../data/processed/network'
+MODEL_DIR = '../../models/artifacts'
 
 # טעינת הסקיילר של ה-Flow
 scalar = joblib.load(os.path.join(MODEL_DIR, 'flow_scalar.pkl'))
@@ -29,7 +29,7 @@ def create_flow_test_set():
 
     # נרמול וחיתוך (Clipping)
     scaled_data = scalar.transform(features_df)
-    scaled_data = np.clip(scaled_data, -10, 10) # חשוב לסנכרון עם האימון
+    scaled_data = np.clip(scaled_data, -10, 10) 
 
     np.save(os.path.join(OUTPUT_DIR, 'flow_test.npy'), scaled_data)
     np.save(os.path.join(OUTPUT_DIR, 'flow_labels_test.npy'), labels)

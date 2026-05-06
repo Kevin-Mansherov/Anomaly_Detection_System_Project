@@ -3,9 +3,9 @@ import numpy as np
 import os
 import joblib
 
-DATASET_DIR = '../Datasets/Model_1_and_2/MachineLearningCSV/MachineLearningCVE'
-OUTPUT_DIR = '../data/processed/network'
-MODEL_DIR = '../models/artifacts'
+DATASET_DIR = '../../Datasets/Model_1_and_2/MachineLearningCSV/MachineLearningCVE'
+OUTPUT_DIR = '../../data/processed/network'
+MODEL_DIR = '../../models/artifacts'
 
 # טעינת הסקיילר של ה-Packet
 scalar = joblib.load(os.path.join(MODEL_DIR, 'packet_scalar.pkl'))
