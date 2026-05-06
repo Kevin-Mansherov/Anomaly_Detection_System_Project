@@ -17,7 +17,8 @@ public class SystemSettingsServiceImpl implements  SystemSettingsService{
         return repository.findAll().stream().findFirst()
                 .orElseGet(() -> {
                     SystemSettings defaultSettings = new SystemSettings();
-                    defaultSettings.setGlobalThreshold(-115.0);
+                    defaultSettings.setPacketThreshold(3.369822);
+                    defaultSettings.setFlowThreshold(14.386914);
                     defaultSettings.setDetectionEnabled(true);
                     return repository.save(defaultSettings);
                 });
@@ -26,7 +27,10 @@ public class SystemSettingsServiceImpl implements  SystemSettingsService{
     @Override
     public SystemSettings updateSettings(SystemSettings settings) {
         SystemSettings existing = getSettings();
-        existing.setGlobalThreshold(settings.getGlobalThreshold());
+
+        existing.setPacketThreshold(settings.getPacketThreshold());
+        existing.setFlowThreshold(settings.getFlowThreshold());
+
         existing.setDetectionEnabled(settings.isDetectionEnabled());
         existing.setLogRetentionDays(settings.getLogRetentionDays());
         return repository.save(existing);
