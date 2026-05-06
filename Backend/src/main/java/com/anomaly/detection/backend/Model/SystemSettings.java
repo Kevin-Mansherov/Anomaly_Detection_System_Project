@@ -11,7 +11,9 @@ public class SystemSettings {
     @Id
     private String id;
 
-    private double globalThreshold;
+    private double packetThreshold;
+    private double flowThreshold;
+
     private int logRetentionDays;
     private boolean isDetectionEnabled;
     private String systemVersion;
