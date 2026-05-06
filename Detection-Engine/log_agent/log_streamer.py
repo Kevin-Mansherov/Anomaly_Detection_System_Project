@@ -65,11 +65,9 @@ def stream_logs():
             print(f"[*] Capturing New Event:\n{payload_str}")
 
             try:
-                # כאן תוריד את ההערה כשהשרת באמת ירוץ ויקבל בקשות
                 response = requests.post(SIEM_SERVER_URL, json=log_event, timeout=2)
                 print(f"    -> [SUCCESS] Delivered to SIEM. HTTP Status: {response.status_code}")
                 
-                # print(f"    -> [SIMULATION] Sent HTTP POST to {SIEM_SERVER_URL}")
                 
             except requests.exceptions.RequestException as e:
                 print(f"    -> [ERROR] Failed to connect to SIEM Server: {e}")
